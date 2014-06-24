@@ -38,9 +38,13 @@ fi
 
 echo "using /dev/$dev"
 size=$(ls -l ./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | awk '{ print $5 }')
-dd if=./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | bar -s $size > /dev/$dev
+#dd if=./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | bar -s $size > /dev/$dev
+
+partprobe /dev/$dev
 mkdir /tmp/rpi-sdcard-automation/root
 mkdir /tmp/rpi-sdcard-automation/boot
 mount /dev/${dev}1 /tmp/rpi-sdcard-automation/boot
 mount /dev/${dev}2 /tmp/rpi-sdcard-automation/root
 
+cp -r ./skel/root/* /tmp/rpi-sdcard-automation/root
+cp -r ./skel/boot/* /tmp/rpi-sdcard-automation/boot
