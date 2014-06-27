@@ -31,7 +31,7 @@ fbset -depth $( cat /sys/module/*fb*/parameters/fbdepth );
 matchbox-window-manager -use_titlebar no -use_cursor no &
 
 # Start the browser (See http://peter.sh/experiments/chromium-command-line-switches/)
-chromium -app=http://www.google.com
+chromium --app=$(cat /tmp/livescrore-url)
 
 done;
 

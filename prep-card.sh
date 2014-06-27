@@ -38,13 +38,23 @@ fi
 
 echo "using /dev/$dev"
 size=$(ls -l ./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | awk '{ print $5 }')
-#dd if=./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | bar -s $size > /dev/$dev
+dd if=./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | bar -s $size > /dev/$dev
 
 partprobe /dev/$dev
-mkdir /tmp/rpi-sdcard-automation/root
-mkdir /tmp/rpi-sdcard-automation/boot
+mkdir /tmp/rpi-sdcard-automation/root 2> /dev/null
+mkdir /tmp/rpi-sdcard-automation/boot 2> /dev/null
 mount /dev/${dev}1 /tmp/rpi-sdcard-automation/boot
 mount /dev/${dev}2 /tmp/rpi-sdcard-automation/root
 
-cp -r ./skel/root/* /tmp/rpi-sdcard-automation/root
-cp -r ./skel/boot/* /tmp/rpi-sdcard-automation/boot
+echo "available profiles"
+ls -1 ./profiles
+echo
+echo "which one to use?"
+read profile
+
+cp -r ./profiles/$profile/root/* /tmp/rpi-sdcard-automation/root
+cp -r ./profiles/$profile/boot/* /tmp/rpi-sdcard-automation/boot
+
+umount /dev/${dev}1
+umount /dev/${dev}2
+
