@@ -26,7 +26,7 @@ echo "done"
 echo
 echo "looking for block devices ..."
 dmesg | grep -i "blocks:" | cut -c 28- | sort | uniq
-lastDev=$(dmesg | grep -i "blocks:" | cut -c 28- | cut -c 2-4 | tail -n1)
+lastDev=$(fdisk -l 2> /dev/null | grep Disk | grep sd | cut -f1 -d: | cut -f3 -d/ | tail -n1)
 
 echo
 echo -n "device to use [$lastDev] "
@@ -40,9 +40,12 @@ echo "using /dev/$dev"
 size=$(ls -l ./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | awk '{ print $5 }')
 dd if=./images/unpack/$(echo $latestFile | sed 's/zip/img/g') | bar -s $size > /dev/$dev
 
+sleep 5
+
 partprobe /dev/$dev
 mkdir /tmp/rpi-sdcard-automation/root 2> /dev/null
 mkdir /tmp/rpi-sdcard-automation/boot 2> /dev/null
+sleep 5
 mount /dev/${dev}1 /tmp/rpi-sdcard-automation/boot
 mount /dev/${dev}2 /tmp/rpi-sdcard-automation/root
 
@@ -55,6 +58,7 @@ read profile
 cp -r ./profiles/$profile/root/* /tmp/rpi-sdcard-automation/root
 cp -r ./profiles/$profile/boot/* /tmp/rpi-sdcard-automation/boot
 
+sleep 5
 umount /dev/${dev}1
 umount /dev/${dev}2
 
