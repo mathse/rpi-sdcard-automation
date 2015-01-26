@@ -34,6 +34,7 @@ fi
 while [ $(ifconfig wlan0 | grep "inet addr" | wc -l) -eq 0 ]
 do
         echo "no wifi connection ... scanning"
+	rm -rf /var/lib/dhcp/dhclient.*
         iwlist scan 2> /dev/null | grep -E "ESSID|Signal"
         dhclient -v wlan0
         echo ""
