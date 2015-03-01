@@ -31,20 +31,26 @@ then
 	reboot
 fi
 
-while [ $(ifconfig wlan0 | grep "inet addr" | wc -l) -eq 0 ]
-do
-        echo "no wifi connection ... scanning"
-        iwlist scan 2> /dev/null | grep -E "ESSID|Signal"
-        dhclient -v wlan0
-        echo ""
-        sleep 2
-done
+if [ $(ifconfig wlan0 | wc -l) -ne 0 ]
+then
+	dev="wlan0"
+	while [ $(ifconfig wlan0 | grep "inet addr" | wc -l) -eq 0 ]
+	do
+        	echo "no wifi connection ... scanning"
+	        iwlist scan 2> /dev/null | grep -E "ESSID|Signal"
+        	dhclient -v wlan0
+	        echo ""
+        	sleep 2
+	done
+else
+	dev="eth0"
+fi
 
 rm -rf /tmp/livescrore-url
 while [ $(cat /tmp/livescrore-url 2> /dev/null | wc -l) -eq 0 ]
 do
 	echo "searching for livescore server ..."
-	for i in $(nmap -p80 $(facter network_wlan0)/24 | grep -B3 "open" | grep "Nmap scan report" | cut -f2 -d"(" | cut -f1 -d")"); do 
+	for i in $(nmap -p80 $(facter network_$dev)/24 | grep -B3 "open" | grep "Nmap scan report" | cut -f2 -d"(" | cut -f1 -d")"); do 
 		subfolder=$(curl -s http://$i/livescore | grep yes-i-am-a-livescore-server | cut -f2 -d":")
 		if [ "$subfolder" != "" ]
 		then
