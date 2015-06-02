@@ -19,6 +19,7 @@ sleep 1;
 if [ ! -f /etc/kiosk-init-done ]
 then
 	echo "looks like the first run, installing prerequisits"
+	echo 'Acquire::http::proxy "http://rhea:3142";' > /etc/apt/apt.conf.d/01proxy
 	apt-get update
 	apt-get -y install matchbox chromium x11-xserver-utils ttf-mscorefonts-installer xwit sqlite3 libnss3 libgl1-mesa-dri 
 	touch /etc/kiosk-init-done
@@ -27,7 +28,7 @@ then
 	ln -s /usr/lib/arm-linux-gnueabihf/nss/ /usr/lib/nss
 	rpi-update
 	mac=$(ifconfig eth0 | grep HWaddr | awk '{ print $5 }' | sed 's/://g')
-	echo "rpi-$mac" > /dev/hostname
+	echo "rpi-$mac" > /etc/hostname
 	reboot
 fi
 

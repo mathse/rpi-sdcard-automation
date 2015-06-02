@@ -18,8 +18,8 @@ mkdir -p /home/pi/.config/chromium/Default
 sqlite3 /home/pi/.config/chromium/Default/Web\ Data "CREATE TABLE meta(key LONGVARCHAR NOT NULL UNIQUE PRIMARY KEY, value LONGVARCHAR); INSERT INTO meta VALUES('version','46'); CREATE TABLE keywords (foo INTEGER);";
 
 # Disable DPMS / Screen blanking
-#xset -dpms
-#xset s off
+xset -dpms
+xset s off
 
 # Reset the framebuffer's colour-depth
 fbset -depth $( cat /sys/module/*fb*/parameters/fbdepth );
