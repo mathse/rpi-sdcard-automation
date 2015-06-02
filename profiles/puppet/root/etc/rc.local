@@ -20,46 +20,22 @@ if [ ! -f /etc/kiosk-init-done ]
 then
 	echo "looks like the first run, installing prerequisits"
 	apt-get update
-	apt-get -y install matchbox chromium x11-xserver-utils ttf-mscorefonts-installer xwit sqlite3 libnss3 libgl1-mesa-dri nmap facter
+	apt-get -y install puppet
+	raspi-config --expand-rootfs
+	echo "START=yes" > /etc/default/puppet
+	echo "[agent]" >> /etc/puppet/puppet.conf
+	echo "pluginsync=true" >> /etc/puppet/puppet.conf
 	touch /etc/kiosk-init-done
 	/bin/sed -i /etc/inittab -e "s/^#\(.*\)#\s*RPICFG_TO_ENABLE\s*/\1/" -e "/#\s*RPICFG_TO_DISABLE/d"
 	rm /etc/profile.d/raspi-config.sh
 	ln -s /usr/lib/arm-linux-gnueabihf/nss/ /usr/lib/nss
 	rpi-update
 	mac=$(ifconfig eth0 | grep HWaddr | awk '{ print $5 }' | sed 's/://g')
-	echo "rpi-$mac" > /dev/hostname
+	echo "pi-$mac" > /etc/hostname
 	reboot
 fi
 
-if [ $(ifconfig wlan0 | wc -l) -ne 0 ]
-then
-	dev="wlan0"
-	while [ $(ifconfig wlan0 | grep "inet addr" | wc -l) -eq 0 ]
-	do
-        	echo "no wifi connection ... scanning"
-	        iwlist scan 2> /dev/null | grep -E "ESSID|Signal"
-        	dhclient -v wlan0
-	        echo ""
-        	sleep 2
-	done
-else
-	dev="eth0"
-fi
 
-
-rm -rf /tmp/livescrore-url
-while [ $(cat /tmp/livescrore-url 2> /dev/null | wc -l) -eq 0 ]
-do
-	echo "searching for livescore server ..."
-	for i in $(nmap -p80 $(facter network_$dev)/24 | grep -B3 "open" | grep "Nmap scan report" | cut -f2 -d"(" | cut -f1 -d")"); do 
-		subfolder=$(curl -s http://$i/livescore | grep yes-i-am-a-livescore-server | cut -f2 -d":")
-		if [ "$subfolder" != "" ]
-		then
-			echo "http://$i/$subfolder" > /tmp/livescrore-url
-		fi
-	done
-	echo "nothing found ..."
-done
 
 if [ -f /boot/xinitrc ]; then
     ln -fs /boot/xinitrc /home/pi/.xinitrc;
